@@ -1,8 +1,8 @@
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
-require('dotenv').config();
 
+require('dotenv').config()
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const session = require('cookie-session');
@@ -13,6 +13,7 @@ const saltRounds = 10;
 const jwt = require('jsonwebtoken');
 
 const app = express();
+
    
 app.use(express.json());
 app.use(cors({
@@ -35,10 +36,14 @@ app.use(
 }))
 
 
-const urlDB = `mysql://${process.env.MYSQLUSER}:${process.env.MYSQLPASSWORD}@${process.env.MYSQLHOST}:${process.env.MYSQLPORT}/${process.env.MYSQL_DATABASE}`;
-const db = mysql.createConnection(urlDB);
+const db = mysql.createConnection({
+  host: process.env.DB_HOST,  
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
+  
+});
 
-//
 
 app.post('/register', (req, res) => {
     console.log(req.body);
@@ -115,7 +120,7 @@ app.post('/login', (req, res) => {
         bcrypt.compare(password, result[0].password, (error, response) => {
           if (response) {
             const id = result[0].id;
-            const token = jwt.sign({ id }, 'supersecret', {
+            const token = jwt.sign({ id },  process.env.JWT_SECRET, {
               expiresIn: 300
             });
             req.session.user = result;
